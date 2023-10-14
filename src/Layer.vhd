@@ -53,7 +53,7 @@ begin
   Layer_proc: process(clk)
   begin
     if rising_edge(clk) then
-      if (rst = '1') then
+      if (rst = '1') then 
         for ii in 0 to G_NEURONS-1 loop
         LayerBusy(ii)           <= '0';
         u_CntArr(ii)            <= (others => '0');
@@ -61,13 +61,13 @@ begin
         StartNeurons(ii)        <= '0'; 
         WeightsToSerialize(ii)  <= (others => '0');
         FeaturesToSerialize(ii) <= (others => '0');
-        end loop;
+        end loop; 
       else
         for ii in 0 to G_NEURONS-1 loop
           if (i_StartLayer = '1') then
             LayerBusy(ii)    <= '1';
             u_CntArr(ii) <= to_unsigned(ii*G_INPUT_PER_NEURON,u_CntArr(ii)'length);
-            ov_LayerOutput(ii) <= ov_LayerOutput(ii);
+            ov_LayerOutput(ii) <= (others => '0');
           elsif (Neuron_rdy(ii) = '1') then
             u_CntArr(ii) <= to_unsigned(ii*G_INPUT_PER_NEURON,u_CntArr(ii)'length);
             LayerBusy(ii)    <= '0';
@@ -76,7 +76,7 @@ begin
             u_CntArr(ii) <= u_CntArr(ii);
             LayerBusy(ii)    <= LayerBusy(ii);
             ov_LayerOutput(ii) <= (others => '0');
-          end if;
+          end if; 
           if (LayerBusy(ii) = '1') then
             if (u_CntArr(ii) < to_unsigned((G_INPUT_PER_NEURON*ii)+G_INPUT_PER_NEURON-1,u_CntArr(ii)'length)) then
               StartNeurons(ii) <= '1'; -- one tap start
