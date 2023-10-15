@@ -114,7 +114,7 @@ entity neuron is
                   Sum  <= (others => '0');
                   Sum_cnt <= (others => '0');
                 end if;
-                
+                 
               else -- wait for multiplication
                 MulResArr        <= (others => (others => '0'));
                 Arr_cnt          <= (others => '0');

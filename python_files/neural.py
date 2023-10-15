@@ -1,4 +1,6 @@
 import numpy as np
+import os
+import math
 from sklearn import datasets
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
@@ -57,23 +59,54 @@ for i in range(len(TestTargs)):
   p= 2 if (prob[i,0] < 0.5) else 1
   print("siec: %d zbior: %d, prob: %.3f" % (p,TestTargs[i],prob[i,0]))
 
-print(clf.coefs_)
-print(clf.intercepts_)
-# print(clfInData)
+coefsT_ls=[]
+interceptsT_ls=[]
+for i in range(len(clf.coefs_)):
+  coefsT=np.transpose(clf.coefs_[i])
+  coefsT_ls.append(coefsT)
+  interceptsT_ls.append(clf.intercepts_[i])
 
-with open ('NetworkValues.txt','w') as f:
-  f.write('Weights:\n')
-  f.write('Layer0\n')
-  np.savetxt(f,clf.coefs_[0], fmt='%s')
-  f.write('Layer1\n')
-  np.savetxt(f,clf.coefs_[1], fmt='%s')
-  f.write('Layer2\n')
-  np.savetxt(f,clf.coefs_[2], fmt='%s')
-  f.write('\n')
-  f.write('Biases:\n')
-  f.write('Layer0\n')
-  np.savetxt(f,clf.intercepts_[0], fmt='%s')
-  f.write('Layer1\n')
-  np.savetxt(f,clf.intercepts_[1], fmt='%s')
-  f.write('Layer2\n')
-  np.savetxt(f,clf.intercepts_[2], fmt='%s')
+print(coefsT_ls)
+print(interceptsT_ls)
+
+for i in range(len(coefsT_ls)):
+  coefsT_ls[i]=coefsT_ls[i]*pow(2,13)
+
+for i in range(len(interceptsT_ls)):
+  interceptsT_ls[i]=interceptsT_ls[i]*pow(2,11)
+print(interceptsT_ls)
+
+ceofs_bin=[]
+intercepts_bin=[]
+
+for i in range(len(coefsT_ls)):
+  for j in range(len(coefsT_ls[i])):
+    for x in range(len(coefsT_ls[i][j])):
+      ceofs_bin.append(np.binary_repr(int(coefsT_ls[i][j][x]),width=18))
+
+for i in range(len(interceptsT_ls)):
+  for j in range(len(interceptsT_ls[i])):
+      intercepts_bin.append(np.binary_repr(int(interceptsT_ls[i][j]),width=16)) 
+
+print('weights')
+print(ceofs_bin)
+print('biases')
+print(intercepts_bin)
+
+# os.chdir('python_files')
+# with open ('NetworkValues.txt','w') as f:
+#   f.write('Weights:\n')
+#   f.write('Layer0\n')
+#   np.savetxt(f,coefsT_ls[0], fmt='%s')
+#   f.write('Layer1\n')
+#   np.savetxt(f,coefsT_ls[1], fmt='%s')
+#   f.write('Layer2\n')
+#   np.savetxt(f,coefsT_ls[2], fmt='%s')
+#   f.write('\n')
+#   f.write('Biases:\n')
+#   f.write('Layer0\n')
+#   np.savetxt(f,interceptsT_ls[0], fmt='%s')
+#   f.write('Layer1\n')
+#   np.savetxt(f,interceptsT_ls[1], fmt='%s')
+#   f.write('Layer2\n')
+#   np.savetxt(f,interceptsT_ls[2], fmt='%s')
