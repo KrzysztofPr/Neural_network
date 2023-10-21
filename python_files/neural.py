@@ -46,7 +46,7 @@ clf=MLPClassifier(
     solver='adam',
     tol=1e-9,
     max_iter=15000,
-    verbose=True)
+    verbose=False)
 clf.fit(clfInData,clfInTargs)
 score=clf.score(TestData,TestTargs)
 print(score)
@@ -94,6 +94,30 @@ print(ceofs_bin)
 print('biases')
 print(intercepts_bin)
 
+def sigmoid(x):
+  return 1.0/(1.0+np.exp(-x))
+
+w12=clf.coefs_[0]
+w23=clf.coefs_[1]
+w34=clf.coefs_[2]
+b1=clf.intercepts_[0]
+b2=clf.intercepts_[1]
+b3=clf.intercepts_[2]
+x=np.array([4.0 ,1.2])
+print('1st equation')
+print(x)
+print(x.shape)
+print(w12)
+print(w12.shape)
+print(b1)
+print(b1.shape)
+a1=sigmoid(np.dot(x,w12)+b1)
+print(a1)
+a2=sigmoid(np.dot(a1,w23)+b2)
+out=sigmoid(np.dot(a2,w34)+b3)
+print(a1)
+print(a2)
+print(out)
 # os.chdir('python_files')
 # with open ('NetworkValues.txt','w') as f:
 #   f.write('Weights:\n')

@@ -17,55 +17,69 @@ architecture network_rtl of network is
   -- network trained in neural.py file, all the coefficients are calculated in neural.py file
   --------------------------------------------------------------------------------
   --1st hidden layer (3 neurons)
-  constant w0_in : t_WeightsArr(6-1 downto 0) := (0 => b"000101011101000100", --53504
-                                                  1 => b"101110110001101101", --
-                                                  2 => b"000000001101001011",
-                                                  3 => b"101110010011010101",
-                                                  4 => b"001000011000111111",
-                                                  5 => b"110000100111010001");
-  --2st hidden layer (2 neurons)
-  constant w1_in : t_WeightsArr(6-1 downto 0) := (0 => b"101011011100100000",
-                                                  1 => b"101110001110111011",
-                                                  2 => b"010010011010110101",
-                                                  3 => b"001011110011001100",
-                                                  4 => b"010001001111010100",
-                                                  5 => b"101001110001000000" 
+  constant w0_in : t_WeightsArr(6-1 downto 0) := (0 => b"000101100111000100", --53504
+                                                  1 => b"111001110011011110", --
+                                                  2 => b"000100100010110010",
+                                                  3 => b"111100001110011011",
+                                                  4 => b"110111110000111111",
+                                                  5 => b"010101110011011010");
+
+  constant w1_in : t_WeightsArr(6-1 downto 0) := (0 => b"101111100011100111",
+                                                  1 => b"110001100001000100",
+                                                  2 => b"100010111001100010",
+                                                  3 => b"101101000010111110",
+                                                  4 => b"101101001101101000",
+                                                  5 => b"110101010101001000" 
                                                   );
+                                                  
+  constant w2_in : t_WeightsArr(2-1 downto 0) := (0 => b"101011011101011111",
+                                                  1 => b"101101011111110110"  );
   --3rd output layer
-  -- constant w2_in : t_WeightsArr(6-1 downto 0) := (0 => b"01010_1100000101010",
-  --                                                 1 => b"10101_1001101111010"
-  --                                                 );
-  constant b0_in : t_BiasesArr(3-1 downto 0) := (0 => b"1011001011100001",
-                                                 1 => b"0001000010101110",
-                                                 2 => b"1010011101111110"
+  constant b0_in : t_BiasesArr(3-1 downto 0) := (0 => b"1010110111011111",
+                                                 1 => b"1011101001101001",
+                                                 2 => b"0000000011000000"
                                                  );
-  constant b1_in : t_BiasesArr(2-1 downto 0) := (0 => b"1100101111010011",
-                                                 1 => b"1110011001000101");
-  constant b2_in : t_BiasesArr(1-1 downto 0) := (0 => b"1011011001101010");
+  constant b1_in : t_BiasesArr(2-1 downto 0) := (0 => b"0010111110011100",
+                                                 1 => b"0011110010110000");
+                                                                     
+  constant b2_in : t_BiasesArr(1-1 downto 0) := (0 => b"0101000010100000");
   -- test values
-  constant x0_in : t_FeaturesArr(2-1 downto 0) := (0 => b"1000011001100110", -- 4.2
-                                                   1 => b"0010100110011001"); --1.3
+  constant x0_in : t_FeaturesArr(2-1 downto 0) := (0 => b"1010110011001100", -- 5.4
+                                                   1 => b"0100100110011001"); --2.3
 --------------------------------------------------------------------------------
 -- others
-  signal FirstLayer_rdy       : std_logic := '0';
-  signal FirstLayer_rdy_reg   : std_logic := '0';
-  signal SecondLayer_rdy      : std_logic := '0';
-  signal FirstLayerResult     : t_LayerOutArr(3-1 downto 0) := (others => (others => '0'));
-  signal FirstLayerResult16b  : t_FeaturesArr(3-1 downto 0) := (others => (others => '0'));
-  signal SecondLayerResult    : t_LayerOutArr(2-1 downto 0) := (others => (others => '0'));
+  signal FirstLayer_rdy          : std_logic := '0';
+  signal FirstLayer_rdy_reg      : std_logic := '0';
+  signal SecondLayer_rdy         : std_logic := '0';
+  signal SecondLayer_rdy_reg     : std_logic := '0';
+
+  signal FirstLayerResult        : t_LayerOutArr(3-1 downto 0) := (others => (others => '0'));
+  signal FirstLayerResult16b     : t_FeaturesArr(3-1 downto 0) := (others => (others => '0'));
+  signal SecondLayerResult       : t_LayerOutArr(2-1 downto 0) := (others => (others => '0'));
+  signal SecondLayerResult16b    : t_FeaturesArr(2-1 downto 0) := (others => (others => '0'));
+
+  signal ThirdLayerResult       : t_LayerOutArr(1-1 downto 0) := (others => (others => '0'));
+  signal ThirdLayer_rdy         : std_logic := '0';
+
 
 begin
   NetworkControl_proc: process(clk)
   begin
     if rising_edge(clk) then
       if (rst = '1') then
-        FirstLayerResult16b <= (others => (others => '0'));
-        FirstLayer_rdy_reg  <= '0';
+        FirstLayerResult16b  <= (others => (others => '0'));
+        FirstLayer_rdy_reg   <= '0';
+        SecondLayer_rdy_reg  <= '0';
+        SecondLayerResult16b <= (others => (others => '0'));
       else
         FirstLayerResult16b <= (0 => (b"000" & FirstLayerResult(0)),
                                 1 => (b"000" & FirstLayerResult(1)),
                                 2 => (b"000" & FirstLayerResult(2))   );
         FirstLayer_rdy_reg <= FirstLayer_rdy;
+        --------------------------------------------------------------------------------
+        SecondLayerResult16b <= (0 => (b"000" & SecondLayerResult(0)),
+                                 1 => (b"000" & SecondLayerResult(1))  );
+        SecondLayer_rdy_reg <= SecondLayer_rdy;
       end if;
     end if;
   end process;
@@ -86,7 +100,7 @@ begin
     iv_w           => w0_in,
     iv_b           => b0_in,
     iv_x           => x0_in,
-    ov_LayerOutput => FirstLayerResult --!!! ufix  0.16!!! TODO CONVERT!
+    ov_LayerOutput => FirstLayerResult 
   );
 
 layer1_inst : entity work.Layer
@@ -107,4 +121,25 @@ port map(
   iv_x           => FirstLayerResult16b,
   ov_LayerOutput => SecondLayerResult
 );
+
+layer2_inst : entity work.Layer
+generic map(
+  G_NEURONS          => 1,
+  G_INPUT_PER_NEURON => 2,
+  G_WEIGHTS_W        => 18,
+  G_FEATURE_W        => 16,
+  G_BIAS_W           => 16
+)
+port map(
+  clk            => clk,
+  rst            => rst,
+  i_StartLayer   => SecondLayer_rdy_reg,
+  o_Layer_rdy    => ThirdLayer_rdy,
+  iv_w           => w2_in,
+  iv_b           => b2_in,
+  iv_x           => SecondLayerResult16b,
+  ov_LayerOutput => ThirdLayerResult
+);
+--output < 0.5 -> class 1
+--output >=0.5 -> class 2
 end architecture;
