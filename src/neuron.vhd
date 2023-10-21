@@ -13,7 +13,7 @@ entity neuron is
       iv_w0      : in std_logic_vector(G_WEIGHTS_W-1 downto 0);
       iv_bias    : in std_logic_vector(16-1 downto 0);
       iv_x0      : in std_logic_vector(16-1 downto 0); -- 16 bit cecha
-      ov_sigmoid : out std_logic_vector(16-1 downto 0);
+      ov_sigmoid : out std_logic_vector(13-1 downto 0);
       i_StartCalc: in std_logic;
       o_Calc_rdy : out std_logic
       );
@@ -24,7 +24,7 @@ entity neuron is
           (
           address: in std_logic_vector (15 downto 0);
           clock  : in std_logic  := '1';
-          q      : out std_logic_vector (15 downto 0)
+          q      : out std_logic_vector (12 downto 0)
           );
         end component;
         signal MulInB           : signed(iv_x0'length downto 0) := (others => '0');
@@ -47,6 +47,8 @@ entity neuron is
         type t_inputarray is array (G_INPUTS-1 downto 0) of signed(G_WEIGHTS_W-1 downto 0);
         signal MulResArr    : t_inputarray  := (others => (others => '0'));
         
+        signal test         : signed(Sum'length-1 downto 0) := (others => '0');
+
         constant SumMaxValuePos4 : signed(Sum'length-1 downto 0) := to_signed(4096,G_WEIGHTS_W+2); -- 4 in Q10.10 signed
         constant SumMinValueNeg4 : signed(Sum'length-1 downto 0) := to_signed(1_044_480,G_WEIGHTS_W+2); -- -4 in Q10.10 signed
       begin
@@ -126,6 +128,7 @@ entity neuron is
               
               if (Calc_rdy(0) = '1') then -- convert to sigmoid function input [0 -> ( 2^16)-1]
                 Sum_with_bias <= Sum + resize(signed(bias_latch(16-1 downto 1)),Sum'length);
+                test <= resize(signed(bias_latch(16-1 downto 1)),Sum'length);
                 if (Sum_with_bias > SumMaxValuePos4) then
                   Sum_saturated <= SumMaxValuePos4  - to_signed(1,s_SumRes'length); -- 7.99
                 elsif (Sum_with_bias < SumMinValueNeg4) then

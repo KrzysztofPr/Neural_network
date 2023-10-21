@@ -57,7 +57,8 @@ print(TestTargs)
 print(clf.classes_)
 for i in range(len(TestTargs)):
   p= 2 if (prob[i,0] < 0.5) else 1
-  print("siec: %d zbior: %d, prob: %.3f" % (p,TestTargs[i],prob[i,0]))
+  print("network output: %d target: %d, prob: %.3f" % (p,TestTargs[i],prob[i,0]))
+  print("feature1: %f feature2: %f" % (TestData[i,0] , TestData[i,1]))
 
 coefsT_ls=[]
 interceptsT_ls=[]

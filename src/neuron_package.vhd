@@ -15,5 +15,7 @@ package neuron_package is
 
   type t_CounterArr is array(natural range <>) of unsigned(16-1 downto 0);
 
+  type t_LayerOutArr is array(natural range <>) of std_logic_vector(13-1 downto 0);
+
 
 end neuron_package;

@@ -21,7 +21,7 @@ entity Layer is
       iv_w          : in t_WeightsArr((G_INPUT_PER_NEURON*G_NEURONS)-1 downto 0);
       iv_b          : in t_BiasesArr(G_NEURONS-1 downto 0);
       iv_x          : in t_FeaturesArr(G_INPUT_PER_NEURON-1 downto 0);
-      ov_LayerOutput: out t_BiasesArr(G_NEURONS-1 downto 0)
+      ov_LayerOutput: out t_LayerOutArr(G_NEURONS-1 downto 0)
       );
     end entity;
     
@@ -29,11 +29,11 @@ architecture Layer_rtl of Layer is
   signal LayerBusy           : std_logic_vector(G_NEURONS-1 downto 0) := (others => '0');
   signal StartNeurons        : std_logic_vector(G_NEURONS-1 downto 0) := (others => '0');
   signal Neuron_rdy          : std_logic_vector(G_NEURONS-1 downto 0) := (others => '0');
-  signal WeightsToSerialize  : t_WeightsArr(G_NEURONS-1 downto 0);
-  signal FeaturesToSerialize : t_FeaturesArr(G_NEURONS-1 downto 0);
-  signal NeuronsOut          : t_BiasesArr(G_NEURONS-1 downto 0);
-  signal u_CntArr            : t_CounterArr(G_NEURONS-1 downto 0);
-  signal LayerOutput         : t_BiasesArr(G_NEURONS-1 downto 0);
+  signal WeightsToSerialize  : t_WeightsArr(G_NEURONS-1 downto 0):= (others => (others => '0'));
+  signal FeaturesToSerialize : t_FeaturesArr(G_NEURONS-1 downto 0):= (others => (others => '0'));
+  signal u_CntArr            : t_CounterArr(G_NEURONS-1 downto 0):= (others => (others => '0'));
+  signal LayerOutput         : t_LayerOutArr(G_NEURONS-1 downto 0):= (others => (others => '0'));
+  signal x_latched           : t_FeaturesArr(iv_x'range) := (others => (others => '0'));
 begin
   out_name: process(clk)
   begin
@@ -63,6 +63,11 @@ begin
         FeaturesToSerialize(ii) <= (others => '0');
         end loop; 
       else
+        if (i_StartLayer = '1') then
+          x_latched <= iv_x;
+        else
+          x_latched <= x_latched;
+        end if;
         for ii in 0 to G_NEURONS-1 loop
           if (i_StartLayer = '1') then
             LayerBusy(ii)    <= '1';
@@ -82,11 +87,11 @@ begin
               StartNeurons(ii) <= '1'; -- one tap start
               WeightsToSerialize(ii) <= iv_w(to_integer(u_CntArr(ii)));
               u_CntArr(ii) <=  u_CntArr(ii) + to_unsigned(1,u_CntArr(ii)'length);
-              FeaturesToSerialize(ii) <= iv_x(to_integer(u_CntArr(ii))-(ii*G_INPUT_PER_NEURON));
+              FeaturesToSerialize(ii) <= x_latched(to_integer(u_CntArr(ii))-(ii*G_INPUT_PER_NEURON));
             elsif (u_CntArr(ii) = to_unsigned((G_INPUT_PER_NEURON*ii)+G_INPUT_PER_NEURON-1,u_CntArr(ii)'length)) then
               StartNeurons(ii) <= '0'; -- one tap start
               WeightsToSerialize(ii) <= iv_w(to_integer(u_CntArr(ii)));
-              FeaturesToSerialize(ii) <= iv_x(to_integer(u_CntArr(ii))-(ii*G_INPUT_PER_NEURON));
+              FeaturesToSerialize(ii) <= x_latched(to_integer(u_CntArr(ii))-(ii*G_INPUT_PER_NEURON));
               u_CntArr(ii) <=  u_CntArr(ii) + to_unsigned(1,u_CntArr(ii)'length);
             else
               StartNeurons(ii) <= StartNeurons(ii);
