@@ -16,6 +16,7 @@ entity uart_comm is
 		clk            : in std_logic;  -- 50 MHz
 		rst            : in std_logic;
 		enable         : in std_logic;
+    send_data_start: in std_logic;
 		send_data      : in std_logic_vector(G_FrameBitsNum-1 downto 0);
 		send_buff_full : out std_logic; --uart is sending data
 		rec_data       : out std_logic_vector(G_FrameBitsNum-1 downto 0);
@@ -34,7 +35,7 @@ type r_uart is (IDLE, read_start ,read_frame, read_stop, delay);
 signal transmit_state : t_uart:= IDLE;
 signal u_TCycles_cnt 	: unsigned(16-1 downto 0) := (others => '0');
 signal u_Tframe_cnt 	: unsigned(8-1 downto 0) := (others => '0');
-signal send_data_r 		: std_logic_vector(send_data'length-1 downto 0) := (others => '0');
+signal send_data_Latched 		: std_logic_vector(send_data'length-1 downto 0) := (others => '0');
 --- receiver related signals
 signal rx_pin_r 		  : std_logic := '0';
 signal rx_pin_r1		  : std_logic := '0';
@@ -53,23 +54,23 @@ begin
 	begin
 		if (rising_edge(clk)) then
 			if (rst='1') then
-				transmit_state  <= IDLE;
-				u_TCycles_cnt   <= (others => '0');
-				send_data_r     <= (others => '0');
-				tx_pin          <= '1';
-				send_buff_full  <= '0';
-				u_Tframe_cnt    <= (others => '0');
+				transmit_state    <= IDLE;
+				u_TCycles_cnt     <= (others => '0');
+				send_data_Latched <= (others => '0');
+				tx_pin            <= '1';
+				send_buff_full    <= '0';
+				u_Tframe_cnt      <= (others => '0');
 			else
 				if (enable = '1') then -- enable D flip flop input
-					send_data_r <= send_data;
 					case transmit_state is
 						when IDLE =>
 							u_TCycles_cnt  <= (others => '0');
 							u_Tframe_cnt   <= (others => '0');
 							tx_pin <= '1'; 
-							if (send_data_r /= send_data) then
+							if (send_data_start = '1') then
 								send_buff_full <= '1';
 								transmit_state <= send_start_bit;
+                send_data_Latched <= send_data;
 							else
 								send_buff_full <= '0';
 								transmit_state <= IDLE;
@@ -89,7 +90,7 @@ begin
 							send_buff_full <= '1';
 							if (u_TCycles_cnt = C_CyclesPerBit ) then
 								u_TCycles_cnt <= (others => '0');
-								if (u_Tframe_cnt = G_FrameBitsNum) then
+								if (u_Tframe_cnt = (G_FrameBitsNum-1)) then
 									u_Tframe_cnt    <= (others => '0');
 									transmit_state <= send_stop_bit;
 								else
@@ -101,7 +102,7 @@ begin
 								u_Tframe_cnt    <= u_Tframe_cnt;
 								transmit_state <= send_frame;
 							end if;
-							tx_pin  <= send_data(to_integer(u_Tframe_cnt));
+							tx_pin  <= send_data_Latched(to_integer(u_Tframe_cnt));
 						when send_stop_bit => 
 							send_buff_full <= '1';
 							tx_pin <= '1';

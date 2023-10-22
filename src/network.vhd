@@ -6,9 +6,13 @@ use work.neuron_package.all;
 
 entity network is --main entity
     port (
-      clk : in std_logic;
-      rst : in std_logic;
-      i_StartCalc : in std_logic
+      clk             : in std_logic;
+      rst             : in std_logic;
+      i_StartCalc     : in std_logic;
+      Feature0        : in std_logic_vector(16-1 downto 0);
+      Feature1        : in std_logic_vector(16-1 downto 0);
+      o_Network_rdy   : out std_logic;
+      ov_NetworkResult: out std_logic_vector(13-1 downto 0)
       );
 end entity;
 
@@ -44,8 +48,8 @@ architecture network_rtl of network is
                                                                      
   constant b2_in : t_BiasesArr(1-1 downto 0) := (0 => b"0101000010100000");
   -- test values
-  constant x0_in : t_FeaturesArr(2-1 downto 0) := (0 => b"1010110011001100", -- 5.4
-                                                   1 => b"0100100110011001"); --2.3
+  signal x0_in : t_FeaturesArr(2-1 downto 0) := (others => (others => '0'));-- := (0 => b"1010110011001100", -- 5.4
+                                              --     1 => b"0100100110011001"); --2.3
 --------------------------------------------------------------------------------
 -- others
   signal FirstLayer_rdy          : std_logic := '0';
@@ -57,12 +61,10 @@ architecture network_rtl of network is
   signal FirstLayerResult16b     : t_FeaturesArr(3-1 downto 0) := (others => (others => '0'));
   signal SecondLayerResult       : t_LayerOutArr(2-1 downto 0) := (others => (others => '0'));
   signal SecondLayerResult16b    : t_FeaturesArr(2-1 downto 0) := (others => (others => '0'));
-
-  signal ThirdLayerResult       : t_LayerOutArr(1-1 downto 0) := (others => (others => '0'));
-  signal ThirdLayer_rdy         : std_logic := '0';
-
-
 begin
+  x0_in(0) <= Feature0;
+  x0_in(1) <= Feature1;
+
   NetworkControl_proc: process(clk)
   begin
     if rising_edge(clk) then
@@ -134,11 +136,11 @@ port map(
   clk            => clk,
   rst            => rst,
   i_StartLayer   => SecondLayer_rdy_reg,
-  o_Layer_rdy    => ThirdLayer_rdy,
+  o_Layer_rdy    => o_Network_rdy,
   iv_w           => w2_in,
   iv_b           => b2_in,
   iv_x           => SecondLayerResult16b,
-  ov_LayerOutput => ThirdLayerResult
+  ov_LayerOutput => ov_NetworkResult
 );
 --output < 0.5 -> class 1
 --output >=0.5 -> class 2
