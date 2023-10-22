@@ -22,6 +22,9 @@ signal w_in : t_WeightsArr((2*3)-1 downto 0);
 signal x_in : t_FeaturesArr(3-1 downto 0);
 signal b_in : t_BiasesArr(2-1 downto 0);
 signal layer_out : t_BiasesArr(3-1 downto 0);
+
+signal x0_in : t_FeaturesArr(2-1 downto 0)  := (0 => b"1010110011001100", -- 5.4
+                                                1 => b"0100100110011001"); --2.3
 begin
 
   clk_proc: process
@@ -46,7 +49,11 @@ network_inst : entity work.network
 port map(
   clk => clk,
   rst => '0',
-  i_StartCalc => start_calc
+  i_StartCalc => start_calc,
+  Feature0         => x0_in(0),
+  Feature1         => x0_in(1),
+  o_Network_rdy    => open,
+  ov_NetworkResult => open
 );
 
 end architecture;

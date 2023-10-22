@@ -23,7 +23,8 @@ architecture uart_interpretter_rtl of uart_interpretter is
   signal rec_data_valid : std_logic := '0';
   signal rec_data : std_logic_vector(8-1 downto 0) := (others => '0');
 
-  signal Features : std_logic_vector(32-1 downto 0) := (others => '0');
+  type t_FeatureBytes is array (3 downto 0) of std_logic_vector(8-1 downto 0);
+  signal Features : t_FeatureBytes := (others => (others => '0'));
   signal Receiver_cnt : unsigned(8-1 downto 0) := (others => '0');
   -- count to 4 -> 2 features 16 bit each, 1 uart frame is 8 bit, 2 frames per feature, 4 frames per 2 feautures
   constant C_ReceiverCntValue : unsigned(Receiver_cnt'range) := to_unsigned(4-1, Receiver_cnt'length);
@@ -35,18 +36,18 @@ uart_inter_proc: process(clk)
 begin
   if rising_edge(clk) then
     if (rst = '1') then
-      Features <= (others => '0');
+      Features <= (others => (others => '0'));
       Receiver_cnt <= (others => '0');
       Features_rdy <= '0';
     else
       if (rec_data_valid = '1') then
         if (Receiver_cnt = C_ReceiverCntValue) then
           Receiver_cnt <= (others => '0');
-          Features(to_integer(((Receiver_cnt + to_unsigned(1,Receiver_cnt'length))*C_DataFrameLength)-1) downto to_integer(Receiver_cnt*C_DataFrameLength)) <= rec_data;
+          Features(to_integer(Receiver_cnt)) <= rec_data;
           Features_rdy <= '1';
         else
           Receiver_cnt <= Receiver_cnt + to_unsigned(1,Receiver_cnt'length);
-          Features(to_integer(((Receiver_cnt + to_unsigned(1,Receiver_cnt'length))*C_DataFrameLength)-1) downto to_integer(Receiver_cnt*C_DataFrameLength)) <= rec_data;
+          Features(to_integer(Receiver_cnt)) <= rec_data;
           Features_rdy <= '0';
         end if;
       else 
@@ -58,8 +59,8 @@ begin
   end if;
 end process;
 o_StartNetwork <= Features_rdy;
-ov_Feature0  <= Features(16-1 downto 0);
-ov_Feature1  <= Features(Features'length-1 downto 16);
+ov_Feature0  <= Features(1) & Features(0);
+ov_Feature1  <= Features(3) & Features(2);
 
 UartComm_INST : entity work.uart_comm
 generic map(
