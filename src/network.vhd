@@ -61,6 +61,9 @@ architecture network_rtl of network is
   signal FirstLayerResult16b     : t_FeaturesArr(3-1 downto 0) := (others => (others => '0'));
   signal SecondLayerResult       : t_LayerOutArr(2-1 downto 0) := (others => (others => '0'));
   signal SecondLayerResult16b    : t_FeaturesArr(2-1 downto 0) := (others => (others => '0'));
+
+  signal ThirdLayerResult       : t_LayerOutArr(1-1 downto 0) := (others => (others => '0'));
+
 begin
   x0_in(0) <= Feature0;
   x0_in(1) <= Feature1;
@@ -140,8 +143,9 @@ port map(
   iv_w           => w2_in,
   iv_b           => b2_in,
   iv_x           => SecondLayerResult16b,
-  ov_LayerOutput => ov_NetworkResult
+  ov_LayerOutput => ThirdLayerResult
 );
+ov_NetworkResult <= ThirdLayerResult(0);
 --output < 0.5 -> class 1
 --output >=0.5 -> class 2
 end architecture;

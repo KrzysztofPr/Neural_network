@@ -18,7 +18,7 @@ port (
 end entity;
 
 architecture uart_interpretter_rtl of uart_interpretter is
-  constant C_DataFrameLength : unsigned(8-1 downto 0) := to_unsigned(8,C_DataFrameLength'length);
+  constant C_DataFrameLength : unsigned(8-1 downto 0) := to_unsigned(8,8);
 
   signal rec_data_valid : std_logic := '0';
   signal rec_data : std_logic_vector(8-1 downto 0) := (others => '0');
@@ -26,7 +26,7 @@ architecture uart_interpretter_rtl of uart_interpretter is
   signal Features : std_logic_vector(32-1 downto 0) := (others => '0');
   signal Receiver_cnt : unsigned(8-1 downto 0) := (others => '0');
   -- count to 4 -> 2 features 16 bit each, 1 uart frame is 8 bit, 2 frames per feature, 4 frames per 2 feautures
-  constant C_ReceiverCntValue : unsigned(Receiver_cnt'range) := to_unsigned(4-1, C_ReceiverCntValue'length);
+  constant C_ReceiverCntValue : unsigned(Receiver_cnt'range) := to_unsigned(4-1, Receiver_cnt'length);
   signal Features_rdy : std_logic := '0';
   --------------------------------------------------------------------------------
 begin
@@ -42,11 +42,11 @@ begin
       if (rec_data_valid = '1') then
         if (Receiver_cnt = C_ReceiverCntValue) then
           Receiver_cnt <= (others => '0');
-          Features(to_integer(Receiver_cnt + to_unsigned(1,Receiver_cnt'length))*C_DataFrameLength downto to_integer(Receiver_cnt)) <= rec_data;
+          Features(to_integer(((Receiver_cnt + to_unsigned(1,Receiver_cnt'length))*C_DataFrameLength)-1) downto to_integer(Receiver_cnt*C_DataFrameLength)) <= rec_data;
           Features_rdy <= '1';
         else
           Receiver_cnt <= Receiver_cnt + to_unsigned(1,Receiver_cnt'length);
-          Features(to_integer(Receiver_cnt + to_unsigned(1,Receiver_cnt'length))*C_DataFrameLength downto to_integer(Receiver_cnt)) <= rec_data;
+          Features(to_integer(((Receiver_cnt + to_unsigned(1,Receiver_cnt'length))*C_DataFrameLength)-1) downto to_integer(Receiver_cnt*C_DataFrameLength)) <= rec_data;
           Features_rdy <= '0';
         end if;
       else 
