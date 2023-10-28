@@ -8,4 +8,5 @@ The main schematic is shown below.
 ## Tests scenario
 The network is tested by [Network_tester.py](python_files/Network_tester.py). It sends the test data, each test case sends 2 iris features via uart interface and receives the answer, which is flower type (1 - Versicolour, 2 - Virginica). The uart communication is done using CP2102 USB to UART converter.
 ![Test hardware](https://github.com/Rekterlol/Neural_network/blob/main/doc/Schematics-Neural_Test.drawio.png)
+
 The FPGA answers are stored and then compared to test targets. Then the score of proper classification is calculated as correct answers percentage.
