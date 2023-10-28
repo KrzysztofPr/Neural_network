@@ -15,9 +15,6 @@ setosa_feat=data[np.where(data[:,2]==0)]
 versic_feat=data[np.where(data[:,2]==1)]
 virginica_feat=data[np.where(data[:,2]==2)]
 
-# setvers_feat=np.append(setosa_feat,versic_feat,)
-
-# plt.scatter(setosa_feat[:,0],setosa_feat[:,1],marker='s')
 plt.scatter(versic_feat[:,0],versic_feat[:,1],marker='^')
 plt.scatter(virginica_feat[:,0],virginica_feat[:,1],marker='v')
 # plt.show()
@@ -25,10 +22,7 @@ train_set_length=35
 test_set_length=len(virginica_feat)-train_set_length
 clfInData=np.append(versic_feat[0:train_set_length,0:2],virginica_feat[0:train_set_length,0:2],axis=0)
 TestData=np.append(versic_feat[train_set_length:,0:2],virginica_feat[train_set_length:,0:2],axis=0)
-# for i in range(len(clfInData)):
-#   clfInData[i] = clfInData[i] * 2.0
-# for i in range(len(TestData)):
-#   TestData[i] = TestData[i] * 2.0
+
   
 Targs_versic=targs[np.where(targs[:,0]==1)]
 Targs_virginica=targs[np.where(targs[:,0]==2)]
@@ -93,45 +87,3 @@ print('weights')
 print(ceofs_bin)
 print('biases')
 print(intercepts_bin)
-
-def sigmoid(x):
-  return 1.0/(1.0+np.exp(-x))
-
-w12=clf.coefs_[0]
-w23=clf.coefs_[1]
-w34=clf.coefs_[2]
-b1=clf.intercepts_[0]
-b2=clf.intercepts_[1]
-b3=clf.intercepts_[2]
-x=np.array([4.0 ,1.2])
-print('1st equation')
-print(x)
-print(x.shape)
-print(w12)
-print(w12.shape)
-print(b1)
-print(b1.shape)
-a1=sigmoid(np.dot(x,w12)+b1)
-print(a1)
-a2=sigmoid(np.dot(a1,w23)+b2)
-out=sigmoid(np.dot(a2,w34)+b3)
-print(a1)
-print(a2)
-print(out)
-# os.chdir('python_files')
-# with open ('NetworkValues.txt','w') as f:
-#   f.write('Weights:\n')
-#   f.write('Layer0\n')
-#   np.savetxt(f,coefsT_ls[0], fmt='%s')
-#   f.write('Layer1\n')
-#   np.savetxt(f,coefsT_ls[1], fmt='%s')
-#   f.write('Layer2\n')
-#   np.savetxt(f,coefsT_ls[2], fmt='%s')
-#   f.write('\n')
-#   f.write('Biases:\n')
-#   f.write('Layer0\n')
-#   np.savetxt(f,interceptsT_ls[0], fmt='%s')
-#   f.write('Layer1\n')
-#   np.savetxt(f,interceptsT_ls[1], fmt='%s')
-#   f.write('Layer2\n')
-#   np.savetxt(f,interceptsT_ls[2], fmt='%s')
