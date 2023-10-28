@@ -63,7 +63,7 @@ begin
       q		    => sigmoid_output
     );
 
-  sigmoidCtrl_proc: process(clk)
+  SigmoidCtrl_proc: process(clk)
   begin
     if rising_edge(clk) then
       if (rst = '1') then
@@ -134,7 +134,7 @@ begin
     end if;
   end process;
 
-  Layer_proc: process(clk)
+  LayerCtrl_proc: process(clk)
   begin
     if rising_edge(clk) then
       if (rst = '1') then 
