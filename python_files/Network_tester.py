@@ -4,7 +4,7 @@ from bitstring import BitArray
 import neural
 
 baud_rate=115200
-ser=serial.Serial('COM3',baud_rate,timeout=0.5)
+ser=serial.Serial('/dev/ttyUSB0',baud_rate,timeout=0.5)
 temp_ls=[]
 answer_class=[]
 
@@ -22,6 +22,8 @@ def ValidateQuality(Targets,Answers):
   QualityPercentage=(RightAns_cnt/len(Targets))*100.0
   return QualityPercentage
 
+print('-----------------------------------')
+print('Performing FPGA test')
 #gather data from FPGA
 for i in range(len(neural.TestData)):
   temp_ls.clear()
@@ -39,4 +41,5 @@ for i in range(len(neural.TestData)):
 
 answers=ConvertAnswersToInt(answer_class)
 Quality=ValidateQuality(neural.TestTargs,answers)
-print(Quality)
+print('-----------------------------------')
+print('Correct answers percentage: ' + str(Quality))

@@ -33,7 +33,7 @@ clfInTargs=np.append(Targs_versic_train,Targs_virginica_train,axis=0)
 Targs_versic_test=Targs_versic[train_set_length:,0]
 Targs_virginica_test=Targs_virginica[train_set_length:,0]
 TestTargs=np.append(Targs_versic_test,Targs_virginica_test,axis=0)
-
+print('Training process')
 clf=MLPClassifier(
     hidden_layer_sizes=(3,2),
     activation='logistic',
@@ -43,12 +43,11 @@ clf=MLPClassifier(
     verbose=False)
 clf.fit(clfInData,clfInTargs)
 score=clf.score(TestData,TestTargs)
+print('Score:')
 print(score)
 
 prob=clf.predict_proba(TestData)
-print(prob)
-print(TestTargs)
-print(clf.classes_)
+# print(prob)
 for i in range(len(TestTargs)):
   p= 2 if (prob[i,0] < 0.5) else 1
   print("network output: %d target: %d, prob: %.3f" % (p,TestTargs[i],prob[i,0]))
@@ -61,15 +60,11 @@ for i in range(len(clf.coefs_)):
   coefsT_ls.append(coefsT)
   interceptsT_ls.append(clf.intercepts_[i])
 
-print(coefsT_ls)
-print(interceptsT_ls)
-
 for i in range(len(coefsT_ls)):
   coefsT_ls[i]=coefsT_ls[i]*pow(2,13)
 
 for i in range(len(interceptsT_ls)):
   interceptsT_ls[i]=interceptsT_ls[i]*pow(2,11)
-print(interceptsT_ls)
 
 ceofs_bin=[]
 intercepts_bin=[]
@@ -83,7 +78,7 @@ for i in range(len(interceptsT_ls)):
   for j in range(len(interceptsT_ls[i])):
       intercepts_bin.append(np.binary_repr(int(interceptsT_ls[i][j]),width=16)) 
 
-print('weights')
+print('Weights')
 print(ceofs_bin)
-print('biases')
+print('Biases')
 print(intercepts_bin)
