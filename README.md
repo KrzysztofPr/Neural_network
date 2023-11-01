@@ -14,4 +14,4 @@ Hardware setup is shown below.
 
 <img src="https://github.com/Rekterlol/Neural_network/blob/main/doc/setup.jpg" width="300" height="300">
 
-The FPGA classification results are stored and then compared to test targets. Then the score of proper classification is calculated as correct answers percentage.
+The FPGA classification results are stored and then compared to test targets. Then the score of proper classification is calculated as correct answers percentage. The neural network achieves 100% of correct answers.
